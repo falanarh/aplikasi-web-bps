@@ -58,13 +58,8 @@ export default function App() {
     setCurrentPage('publications');
   };
 
-  const handleLogin = (username) => {
-    setUser(username);
-    setCurrentPage('publications');
-  };
-
   if (!user) {
-    return <LoginPage onLogin={handleLogin} />;
+    return <LoginPage />;
   }
 
   let pageContent;

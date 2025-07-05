@@ -1,19 +1,36 @@
 import React, { useState } from 'react';
 import BpsLogo from '../assets/bps-logo.png';
+import apiClient from '../api/axios';
+import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
-export default function LoginPage({ onLogin }) {
-  const [username, setUsername] = useState('');
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { loginAction } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Validasi sederhana: username dan password tidak boleh kosong
-    if (!username || !password) {
-      alert('Username dan password harus diisi!');
+    if (!email || !password) {
+      alert('Email dan password harus diisi!');
       return;
     }
-    // Bisa tambahkan validasi hardcode jika mau
-    onLogin(username);
+    try {
+      // Langkah 1: Ambil CSRF cookie dari Sanctum
+      await apiClient.get('/sanctum/csrf-cookie');
+  
+      // Langkah 2: Kirim request login dengan kredensial
+      const response = await apiClient.post('/login', { email, password });
+  
+      if (response.data.token) {
+        loginAction(response.data); // Simpan token dan data user ke Context & localStorage
+        navigate('/publications'); // Arahkan ke halaman yang dilindungi
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -25,14 +42,14 @@ export default function LoginPage({ onLogin }) {
         </div>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
               type="text"
-              id="username"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
+              id="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500"
-              placeholder="Masukkan username"
+              placeholder="Masukkan email"
             />
           </div>
           <div>
