@@ -1,11 +1,15 @@
 // src/components/AddPublicationPage.jsx
 
 import React, { useState } from 'react';
+import { usePublications } from '../hooks/usePublications';
+import { useNavigate } from 'react-router-dom';
 
-export default function AddPublicationPage({ onAddPublication, setCurrentPage }) {
+export default function AddPublicationPage() {
   const [title, setTitle] = useState('');
   const [releaseDate, setReleaseDate] = useState('');
   const [coverFile, setCoverFile] = useState(null);
+  const { addPublication } = usePublications();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,8 +32,8 @@ export default function AddPublicationPage({ onAddPublication, setCurrentPage })
       description: 'Deskripsi untuk publikasi baru ini akan ditambahkan kemudian.',
       coverUrl,
     };
-    onAddPublication(newPublication);
-    setCurrentPage('publications');
+    addPublication(newPublication);
+    navigate('/publications');
     setTitle('');
     setReleaseDate('');
     setCoverFile(null);

@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { usePublications } from '../hooks/usePublications';
 
-export default function EditPublicationPage({ publication, onSave, onCancel }) {
+export default function EditPublicationPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { publications, editPublication } = usePublications();
+  const publication = publications.find(pub => pub.id === Number(id));
+
   const [title, setTitle] = useState('');
   const [releaseDate, setReleaseDate] = useState('');
   const [coverFile, setCoverFile] = useState(null);
@@ -30,8 +37,13 @@ export default function EditPublicationPage({ publication, onSave, onCancel }) {
       releaseDate,
       coverUrl: newCoverUrl,
     };
-    onSave(updatedPublication);
+    editPublication(updatedPublication);
+    navigate('/publications');
   };
+
+  if (!publication) {
+    return <div className="text-center mt-10">Publikasi tidak ditemukan.</div>;
+  }
 
   return (
     <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg">
@@ -74,7 +86,7 @@ export default function EditPublicationPage({ publication, onSave, onCancel }) {
         <div className="flex justify-end space-x-2">
           <button
             type="button"
-            onClick={onCancel}
+            onClick={() => navigate('/publications')}
             className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors duration-300"
           >
             Batal

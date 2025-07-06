@@ -1,8 +1,13 @@
 // src/components/PublicationListPage.jsx
 
 import React from 'react';
+import { usePublications } from '../hooks/usePublications';
+import { useNavigate } from 'react-router-dom';
 
-export default function PublicationListPage({ publications, onEditPublication }) {
+export default function PublicationListPage() {
+  const { publications } = usePublications();
+  const navigate = useNavigate();
+
   return (
     <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
       <header className="mb-8 text-center md:text-left">
@@ -37,7 +42,7 @@ export default function PublicationListPage({ publications, onEditPublication })
                 <td className="px-6 py-4 text-center">
                   <button
                     className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs font-semibold"
-                    onClick={() => onEditPublication(pub)}
+                    onClick={() => navigate(`/publications/edit/${pub.id}`)}
                   >
                     Edit
                   </button>
