@@ -1,12 +1,13 @@
 // src/components/Navbar.jsx
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 const navItems = [
   { id: "publications", label: "Daftar Publikasi", path: "/publications" },
   { id: "add", label: "Tambah Publikasi", path: "/publications/add" },
-  { id: "logout", label: "Logout", path: "/login" },
+  { id: "logout", label: "Logout", path: "/logout" },
 ];
 
 function BpsLogo() {
@@ -21,9 +22,41 @@ function BpsLogo() {
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logoutAction, loading, user, error } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logoutAction();
+      console.log("Logout berhasil");
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  // Jangan tampilkan navbar di halaman login
+  if (location.pathname === '/login') {
+    return null;
+  }
 
   return (
     <nav className="bg-[#0369A1] shadow-lg sticky top-0 z-50">
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 text-sm">
+          <div className="flex items-center justify-between">
+            <span>{error}</span>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="text-red-500 hover:text-red-700"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-3">
@@ -40,7 +73,26 @@ export default function Navbar() {
                   location.pathname.startsWith("/publications/add")) ||
                 (item.id === "publications" &&
                   location.pathname === "/publications");
-              const isImplemented = ["publications", "add"].includes(item.id);
+              
+              // Tampilkan semua menu jika user sudah login
+              const isImplemented = user ? ["publications", "add", "logout"].includes(item.id) : [];
+
+              if (item.id === "logout") {
+                return (
+                  <button
+                    key={item.id}
+                    onClick={handleLogout}
+                    disabled={loading}
+                    className={`px-3 py-2 rounded-md text-sm font-semibold transition-all duration-300 border border-transparent ${
+                      loading 
+                        ? 'bg-gray-400 cursor-not-allowed opacity-60' 
+                        : 'text-sky-100 hover:bg-sky-700 hover:text-white cursor-pointer'
+                    }`}
+                  >
+                    {loading ? 'Logging out...' : item.label}
+                  </button>
+                );
+              }
 
               return (
                 <Link
