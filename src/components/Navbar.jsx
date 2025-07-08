@@ -23,20 +23,19 @@ function BpsLogo() {
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logoutAction, loading, user, error } = useAuth();
+  const { logoutAction, error } = useAuth();
 
   const handleLogout = async () => {
     try {
       await logoutAction();
-      console.log("Logout berhasil");
-      navigate('/login');
+      navigate("/login");
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
 
   // Jangan tampilkan navbar di halaman login
-  if (location.pathname === '/login') {
+  if (location.pathname === "/login") {
     return null;
   }
 
@@ -47,8 +46,8 @@ export default function Navbar() {
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 text-sm">
           <div className="flex items-center justify-between">
             <span>{error}</span>
-            <button 
-              onClick={() => window.location.reload()} 
+            <button
+              onClick={() => window.location.reload()}
               className="text-red-500 hover:text-red-700"
             >
               ×
@@ -56,7 +55,7 @@ export default function Navbar() {
           </div>
         </div>
       )}
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-3">
@@ -73,23 +72,15 @@ export default function Navbar() {
                   location.pathname.startsWith("/publications/add")) ||
                 (item.id === "publications" &&
                   location.pathname === "/publications");
-              
-              // Tampilkan semua menu jika user sudah login
-              const isImplemented = user ? ["publications", "add", "logout"].includes(item.id) : [];
 
               if (item.id === "logout") {
                 return (
                   <button
                     key={item.id}
                     onClick={handleLogout}
-                    disabled={loading}
-                    className={`px-3 py-2 rounded-md text-sm font-semibold transition-all duration-300 border border-transparent ${
-                      loading 
-                        ? 'bg-gray-400 cursor-not-allowed opacity-60' 
-                        : 'text-sky-100 hover:bg-sky-700 hover:text-white cursor-pointer'
-                    }`}
+                    className="px-3 py-2 rounded-md text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-all duration-300 cursor-pointer shadow-sm"
                   >
-                    {loading ? 'Logging out...' : item.label}
+                    {item.label}
                   </button>
                 );
               }
@@ -97,20 +88,12 @@ export default function Navbar() {
               return (
                 <Link
                   key={item.id}
-                  to={isImplemented ? item.path : "#"}
-                  className={
-                    `px-3 py-2 rounded-md text-sm font-semibold transition-all duration-300 border border-transparent ` +
-                    `${
-                      isImplemented
-                        ? "cursor-pointer"
-                        : "cursor-not-allowed opacity-60"
-                    } ` +
-                    `${
-                      isActive && isImplemented
-                        ? "bg-slate-200 text-sky-900 shadow-inner"
-                        : "text-sky-100 hover:bg-sky-700 hover:text-white"
-                    }`
-                  }
+                  to={item.path}
+                  className={`px-3 py-2 rounded-md text-sm font-semibold transition-all duration-300 border border-transparent cursor-pointer ${
+                    isActive
+                      ? "bg-white text-sky-900 shadow-md font-bold"
+                      : "text-sky-100 hover:bg-sky-700 hover:text-white"
+                  }`}
                 >
                   {item.label}
                 </Link>

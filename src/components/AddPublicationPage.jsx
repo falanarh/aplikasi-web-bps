@@ -3,9 +3,11 @@
 import React, { useState } from 'react';
 import { usePublications } from '../hooks/usePublications';
 import { useNavigate } from 'react-router-dom';
+import { uploadImageToCloudinary } from '../services/publicationService';
 
 export default function AddPublicationPage() {
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [releaseDate, setReleaseDate] = useState('');
   const [coverFile, setCoverFile] = useState(null);
   const { addPublication } = usePublications();
@@ -19,24 +21,31 @@ export default function AddPublicationPage() {
     }
     let coverUrl = '';
     if (coverFile) {
-      // Tidak bisa copy file langsung di browser, jadi kita simpan URL lokal sementara
-      coverUrl = URL.createObjectURL(coverFile);
-      // Di dunia nyata, upload ke server atau gunakan backend
+      try {
+        coverUrl = await uploadImageToCloudinary(coverFile);
+      } catch (err) {
+        alert('Gagal upload gambar: ' + err.message);
+        return;
+      }
     } else {
       coverUrl = `https://placehold.co/200x280/7f8c8d/ffffff?text=${encodeURIComponent(title)}`;
     }
     const newPublication = {
-      id: Date.now(),
       title,
       releaseDate,
-      description: 'Deskripsi untuk publikasi baru ini akan ditambahkan kemudian.',
+      description,
       coverUrl,
     };
-    addPublication(newPublication);
-    navigate('/publications');
-    setTitle('');
-    setReleaseDate('');
-    setCoverFile(null);
+    try {
+      await addPublication(newPublication);
+      navigate('/publications');
+      setTitle('');
+      setReleaseDate('');
+      setDescription('');
+      setCoverFile(null);
+    } catch (err) {
+      alert('Gagal menambah publikasi: ' + err.message);
+    }
   };
 
   return (
@@ -52,6 +61,17 @@ export default function AddPublicationPage() {
             onChange={e => setTitle(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500"
             placeholder="Contoh: Indikator Ekonomi Bengkulu 2025"
+          />
+        </div>
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+          <textarea
+            id="description"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500"
+            placeholder="Contoh: Publikasi ini membahas Indikator Ekonomi Bengkulu 2025 secara mendalam."
+            rows={4}
           />
         </div>
         <div>

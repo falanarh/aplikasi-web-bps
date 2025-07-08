@@ -1,3 +1,4 @@
+// src/components/LoginPage.jsx
 import React, { useState } from 'react';
 import BpsLogo from '../assets/bps-logo.png';
 import { useAuth } from '../hooks/useAuth';
@@ -9,27 +10,21 @@ export default function LoginPage() {
   const { loginAction, loading, error } = useAuth();
   const navigate = useNavigate();
 
-  // Clear error when component mounts
-  // useEffect(() => {
-  //   if (clearError) {
-  //     clearError();
-  //   }
-  // }, [clearError]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validasi sederhana: username dan password tidak boleh kosong
+    
+    // Validasi sederhana
     if (!email || !password) {
       alert('Email dan password harus diisi!');
       return;
     }
+    
     try {
       await loginAction(email, password);
-      // Jika sampai sini tanpa error, berarti login berhasil
+      // Redirect ke publications setelah login berhasil
       navigate('/publications');
     } catch (err) {
       console.error('Login failed:', err);
-      // Error sudah dihandle di context, tidak perlu redirect
     }
   };
 
@@ -43,7 +38,7 @@ export default function LoginPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm animate-pulse">
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm">
             <div className="flex items-center">
               <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
